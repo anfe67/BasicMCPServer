@@ -43,12 +43,12 @@ To run this server in a production environment, build the Docker image and expos
 
 **Build the image**:
 ```
-docker build -t knowsearch-mcp .
+docker build -t basic-mcp-server .
 ```
 
 **Run the container**:
 ```
-docker run -d --name ks-mcp-server -p 8000:8000 knowsearch-mcp
+docker run -d --name ks-mcp-server -p 8000:8000 basic-mcp-server
 ```
 
 Alternatively, use `docker-compose`:
