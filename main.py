@@ -24,8 +24,6 @@ middleware = [
     )
 ]
 
-app = mcp.http_app(middleware=middleware)
-
 @mcp.tool()
 def web_search(query: str, max_results: int = 5) -> list[dict]:
     """Search the web and return titles, URLs, and snippets."""
@@ -43,4 +41,4 @@ def web_fetch(url: str) -> str:
 
 if __name__ == "__main__":
     # Exposes Streamable HTTP at http://127.0.0.1:8000/mcp
-    mcp.run(transport="http", host="0.0.0.0", port=8000)
+    mcp.run(transport="http", host="0.0.0.0", port=8000, middleware=middleware)
