@@ -1,5 +1,6 @@
 from fastmcp import FastMCP
 from ddgs import DDGS
+from ddgs.exceptions import DDGSException
 import trafilatura
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
@@ -27,8 +28,11 @@ middleware = [
 @mcp.tool()
 def web_search(query: str, max_results: int = 5) -> list[dict]:
     """Search the web and return titles, URLs, and snippets."""
-    with DDGS() as ddgs:
-        return list(ddgs.text(query, max_results=max_results))
+    try:
+        with DDGS() as ddgs:
+            return list(ddgs.text(query, max_results=max_results))
+    except DDGSException as e:
+        return [{"error": str(e)}]
 
 @mcp.tool()
 def web_fetch(url: str) -> str:
