@@ -1,0 +1,43 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ── uv / virtualenv ─────────────────────────────────────
+.venv/
+
+# NOTE: uv.lock is intentionally NOT ignored — the Dockerfile
+# relies on it (`uv sync --frozen`). Commit it.
+
+# ── Environment / secrets ───────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Local data & uploads ────────────────────────────────
+data/
+*.pdf
+!tests/fixtures/*.pdf      # remove this line if you don't commit fixture PDFs
+qdrant_storage/            # in case you ever run Qdrant embedded
+
+# ── Models (never commit GGUFs — use the Docker volume) ──
+models/
+*.gguf
+
+# ── Build / dist ────────────────────────────────────────
+dist/
+build/
+
+# ── Tooling caches ──────────────────────────────────────
+.ruff_cache/
+
+# ── IDE / OS ─────────────────────────────────────────────
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

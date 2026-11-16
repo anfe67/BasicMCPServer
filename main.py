@@ -1,0 +1,24 @@
+from fastmcp import FastMCP
+from ddgs import DDGS
+import trafilatura
+
+mcp = FastMCP("Local Web Search")
+
+@mcp.tool()
+def web_search(query: str, max_results: int = 5) -> list[dict]:
+    """Search the web and return titles, URLs, and snippets."""
+    with DDGS() as ddgs:
+        return list(ddgs.text(query, max_results=max_results))
+
+@mcp.tool()
+def web_fetch(url: str) -> str:
+    """Fetch a webpage and extract its main content as clean Markdown."""
+    downloaded = trafilatura.fetch_url(url)
+    if not downloaded:
+        return "Failed to fetch URL."
+    text = trafilatura.extract(downloaded, output_format="markdown", include_links=True)
+    return text or "No readable content extracted."
+
+if __name__ == "__main__":
+    # Exposes Streamable HTTP at http://127.0.0.1:8000/mcp
+    mcp.run(transport="http", host="127.0.0.1", port=8000)

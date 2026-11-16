@@ -1,0 +1,76 @@
+name: knowsearch
+
+services:
+  # ── Vector store ──────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest        # pin a version tag in production
+    container_name: ks-qdrant
+    ports:
+      - "6333:6333"                    # REST
+      # - "6334:6334"                  # gRPC (uncomment + set QDRANT__SERVICE__GRPC_PORT=6334 if you use it)
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__LOG_LEVEL=INFO
+    restart: unless-stopped
+
+  # ── Embedding server (llama.cpp, OpenAI-compatible /v1/embeddings) ──
+  embedder:
+    image: ghcr.io/ggml-org/llama.cpp:server   # CPU build; use :server-cuda + a GPU device for speed
+    container_name: ks-embedder
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./embedder/entrypoint.sh:/entrypoint.sh:ro
+      - embed_models:/models                  # model cached here across restarts
+      # alt: mount a pre-downloaded model and skip the download entirely:
+      # - ./models:/models
+    environment:
+      EMBED_MODEL_FILE: nomic-embed-text-v1.5.Q8_0.gguf
+      # HF "resolve/main" URL — if this exact file 404s, grab any Q8_0 GGUF of
+      # nomic-embed-text-v1.5 (e.g. a bartowski mirror) and swap the URL:
+      EMBED_HF_URL: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5-GGUF/resolve/main/nomic-embed-text-v1.5.Q8_0.gguf
+      EMBED_CTX_SIZE: "8192"      # nomic v1.5 max context; your 512-token chunks fit easily
+      THREADS: "0"                # 0 = auto
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s           # first start includes the model download
+    restart: unless-stopped
+
+  # ── FastAPI app ────────────────────────────────────────────────
+#  api:
+#    build: .
+#    container_name: ks-api
+#    ports:
+#      - "8000:8000"
+#    environment:
+#      # llama-server speaks the OpenAI embeddings API, so the app reuses its
+#      # existing OpenAI-compatible provider — just point it at the container:
+#      EMBED_PROVIDER: openai
+#      EMBED_BASE_URL: http://embedder:8080/v1
+#      EMBED_MODEL: nomic-embed-text-v1.5
+#      EMBED_DIM: "768"            # nomic v1.5 default dimension (matryoshka: can go down to 64)
+#      QDRANT_URL: http://qdrant:6333
+#      QDRANT_COLLECTION: docs
+#      CHUNK_SIZE_TOKENS: "512"
+#      CHUNK_OVERLAP_TOKENS: "64"
+#      API_KEY: change-me
+#    depends_on:
+#      qdrant:
+#        condition: service_started
+#      embedder:
+#        condition: service_healthy
+#    healthcheck:
+#      test: ["CMD", "python", "-c", "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=3).status==200 else 1)"]
+#      interval: 15s
+#      timeout: 5s
+#      retries: 5
+#    restart: unless-stopped
+
+volumes:
+  qdrant_data:
+  embed_models:
