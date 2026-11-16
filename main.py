@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 mcp = FastMCP("Local Web Search")
 
 # Add CORS middleware to allow cross-origin requests
-mcp.http_app().add_middleware(  # type: ignore
+app = mcp.http_app()
+app.add_middleware(  # type: ignore
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins (adjust for production)
     allow_credentials=True,
