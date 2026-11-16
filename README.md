@@ -48,7 +48,7 @@ docker build -t basic-mcp-server .
 
 **Run the container**:
 ```
-docker run -d --name ks-mcp-server -p 8000:8000 basic-mcp-server
+docker run -d --name basic-mcp-server -p 8000:8000 basic-mcp-server
 ```
 
 Alternatively, use `docker-compose`:
