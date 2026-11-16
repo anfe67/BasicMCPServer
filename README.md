@@ -26,7 +26,7 @@ The server will be available via HTTP at `http://127.0.0.1:8000/mcp`.
 ## Running tests
 
 ```bash
-uv run pytest
+uv run python -m pytest
 ```
 
 ## Project structure
