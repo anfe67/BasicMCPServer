@@ -21,7 +21,7 @@ uv sync
 uv run python main.py
 ```
 
-The server will be available via HTTP at `http://127.0.0.1:8000/mcp`.
+The server will be available via HTTP at `http://localhost:8000/mcp`. If running in a container, use `http://<host>:8000/mcp`.
 
 ## Running tests
 
