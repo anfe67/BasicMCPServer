@@ -1,19 +1,30 @@
 from fastmcp import FastMCP
 from ddgs import DDGS
 import trafilatura
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 
 mcp = FastMCP("Local Web Search")
 
-# Add CORS middleware to allow cross-origin requests
-app = mcp.http_app()
-app.add_middleware(  # type: ignore
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (adjust for production)
-    allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods
-    allow_headers=["*"],  # Allow all headers
-)
+# Configure CORS middleware for browser-based clients
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Allow all origins (adjust for production)
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "mcp-protocol-version",
+            "mcp-session-id",
+            "mcp-method",
+            "mcp-name",
+            "Authorization",
+            "Content-Type",
+        ],
+        expose_headers=["mcp-session-id"],
+    )
+]
+
+app = mcp.http_app(middleware=middleware)
 
 @mcp.tool()
 def web_search(query: str, max_results: int = 5) -> list[dict]:
