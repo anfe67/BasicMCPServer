@@ -44,5 +44,5 @@ def web_fetch(url: str) -> str:
     return text or "No readable content extracted."
 
 if __name__ == "__main__":
-    # Exposes Streamable HTTP at http://127.0.0.1:8000/mcp
+    # Exposes Streamable HTTP at http://0.0.0.0:8000/mcp
     mcp.run(transport="http", host="0.0.0.0", port=8000, middleware=middleware)
