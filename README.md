@@ -29,6 +29,20 @@ The server will be available via HTTP at `http://localhost:8000/mcp`. If running
 uv run python -m pytest
 ```
 
+### Integration Tests
+We have integration tests that verify the actual web search and web fetch capabilities:
+
+- `tests/test_integration.py`
+    - `test_ddgs_direct_integration`: Verifies that the `ddgs` library performs actual web searches.
+    - `test_web_search_tool_integration`: Verifies the `web_search` MCP tool correctly integrates with `ddgs`.
+    - `test_web_fetch_direct`: Verifies that `web_fetch` can successfully fetch and parse a real webpage.
+    - `test_web_fetch_tool_integration`: Verifies the `web_fetch` MCP tool correctly integrates with `trafilatura`.
+
+Run integration tests specifically:
+```bash
+uv run python -m pytest tests/test_integration.py
+```
+
 ## Project structure
 
 - `main.py`: Entry point containing the FastMCP server definition and tools.
