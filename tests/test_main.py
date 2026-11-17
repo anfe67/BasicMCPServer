@@ -1,6 +1,6 @@
 from unittest.mock import patch, MagicMock
 import pytest
-from main import mcp, web_search, web_fetch
+from main import mcp, web_search_ddg, web_fetch
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def test_web_search_success(mock_ddgs):
     ]
 
     # Act
-    results = web_search("test query", max_results=2)
+    results = web_search_ddg("test query", max_results=2)
 
     # Assert
     assert len(results) == 2
@@ -40,7 +40,7 @@ def test_web_search_empty(mock_ddgs):
     mock_ddgs_instance.text.return_value = []
 
     # Act
-    results = web_search("non-existent query")
+    results = web_search_ddg("non-existent query")
 
     # Assert
     assert results == []

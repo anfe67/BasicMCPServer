@@ -26,11 +26,20 @@ middleware = [
 ]
 
 @mcp.tool()
-def web_search(query: str, max_results: int = 5) -> list[dict]:
-    """Search the web and return titles, URLs, and snippets."""
+def web_search_ddg(query: str, max_results: int = 5) -> list[dict]:
+    """Search the web using DuckDuckGo and return titles, URLs, and snippets."""
     try:
         with DDGS() as ddgs:
             return list(ddgs.text(query, max_results=max_results))
+    except DDGSException as e:
+        return [{"error": str(e)}]
+
+@mcp.tool()
+def web_search_bing(query: str, max_results: int = 5) -> list[dict]:
+    """Search the web using Bing and return titles, URLs, and snippets."""
+    try:
+        with DDGS() as ddgs:
+            return list(ddgs.text(query, max_results=max_results, backend='bing'))
     except DDGSException as e:
         return [{"error": str(e)}]
 

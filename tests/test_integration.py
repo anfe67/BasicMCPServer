@@ -19,10 +19,30 @@ async def test_ddgs_direct_integration():
     assert "body" in result
 
 @pytest.mark.asyncio
-async def test_web_search_tool_integration():
-    """Integration test for web_search MCP tool."""
+async def test_web_search_ddg_tool_integration():
+    """Integration test for web_search_ddg MCP tool."""
     query = "python programming language"
-    results = await mcp.call_tool("web_search", arguments={"query": query, "max_results": 1})
+    results = await mcp.call_tool("web_search_ddg", arguments={"query": query, "max_results": 1})
+    
+    assert results is not None
+    assert isinstance(results, ToolResult)
+    assert not results.is_error
+    assert len(results.content) > 0
+    assert isinstance(results.content[0].text, str)
+    
+    results_list = json.loads(results.content[0].text)
+    assert isinstance(results_list, list)
+    assert len(results_list) > 0
+    result = results_list[0]
+    assert "title" in result
+    assert "href" in result
+    assert "body" in result
+
+@pytest.mark.asyncio
+async def test_web_search_bing_tool_integration():
+    """Integration test for web_search_bing MCP tool."""
+    query = "python programming language"
+    results = await mcp.call_tool("web_search_bing", arguments={"query": query, "max_results": 1})
     
     assert results is not None
     assert isinstance(results, ToolResult)

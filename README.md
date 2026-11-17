@@ -4,7 +4,7 @@ A minimal MCP (Model Context Protocol) server that provides web search and web f
 
 ## Features
 
-- **Web Search**: Search the web using DuckDuckGo and retrieve titles, URLs, and snippets.
+- **Web Search**: Search the web using DuckDuckGo or Google and retrieve titles, URLs, and snippets.
 - **Web Fetch**: Fetch a webpage and extract its main content as clean Markdown using Trafilatura.
 
 ## Installation
@@ -34,7 +34,8 @@ We have integration tests that verify the actual web search and web fetch capabi
 
 - `tests/test_integration.py`
     - `test_ddgs_direct_integration`: Verifies that the `ddgs` library performs actual web searches.
-    - `test_web_search_tool_integration`: Verifies the `web_search` MCP tool correctly integrates with `ddgs`.
+    - `test_web_search_ddg_tool_integration`: Verifies the `web_search_ddg` MCP tool correctly integrates with DuckDuckGo.
+    - `test_web_search_google_tool_integration`: Verifies the `web_search_google` MCP tool correctly integrates with Google.
     - `test_web_fetch_direct`: Verifies that `web_fetch` can successfully fetch and parse a real webpage.
     - `test_web_fetch_tool_integration`: Verifies the `web_fetch` MCP tool correctly integrates with `trafilatura`.
 
