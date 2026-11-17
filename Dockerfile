@@ -15,4 +15,4 @@ COPY main.py .
 EXPOSE 8000
 
 # Use the uv-created virtualenv to run the application
-CMD ["uv", "run", "python", "main.py", "--host", "0.0.0.0"]
+CMD ["uv", "run", "python", "main.py", "--host", "0.0.0.0", "--port", "8000"]
