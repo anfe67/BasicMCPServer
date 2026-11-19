@@ -1,6 +1,6 @@
 import pytest
 import json
-from main import mcp, web_fetch
+from main import mcp, web_fetch, web_fetch_pdf
 from ddgs import DDGS
 from fastmcp.tools.base import ToolResult
 
@@ -82,3 +82,25 @@ async def test_web_fetch_tool_integration():
     assert len(results.content) > 0
     assert isinstance(results.content[0].text, str)
     assert len(results.content[0].text) > 0
+
+@pytest.mark.asyncio
+async def test_web_fetch_pdf_direct():
+    """Integration test for web_fetch_pdf function directly."""
+    url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+    content = web_fetch_pdf(url)
+    
+    assert content is not None
+    assert isinstance(content, bytes)
+    assert len(content) > 0
+    assert content.startswith(b"%PDF")
+
+@pytest.mark.asyncio
+async def test_web_fetch_pdf_tool_integration():
+    """Integration test for web_fetch_pdf MCP tool."""
+    url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+    results = await mcp.call_tool("web_fetch_pdf", arguments={"url": url})
+    
+    assert results is not None
+    assert isinstance(results, ToolResult)
+    assert not results.is_error
+    assert len(results.content) > 0

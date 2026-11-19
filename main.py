@@ -2,6 +2,7 @@ from fastmcp import FastMCP
 from ddgs import DDGS
 from ddgs.exceptions import DDGSException
 import trafilatura
+import httpx
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 
@@ -51,6 +52,23 @@ def web_fetch(url: str) -> str:
         return "Failed to fetch URL."
     text = trafilatura.extract(downloaded, output_format="markdown", include_links=True)
     return text or "No readable content extracted."
+
+@mcp.tool()
+def web_fetch_pdf(url: str) -> bytes:
+    """Fetch a PDF file from a URL and return its binary content unaltered."""
+    try:
+        with httpx.Client() as client:
+            response = client.get(url, follow_redirects=True, timeout=30.0)
+            response.raise_for_status()
+            return response.content
+    except httpx.HTTPStatusError as e:
+        return f"Failed to fetch PDF: HTTP error {e.response.status_code}".encode()
+    except httpx.TimeoutException:
+        return b"Failed to fetch PDF: Request timed out"
+    except httpx.RequestError as e:
+        return f"Failed to fetch PDF: Request error - {str(e)}".encode()
+    except Exception as e:
+        return f"Failed to fetch PDF: Unexpected error - {str(e)}".encode()
 
 if __name__ == "__main__":
     # Exposes Streamable HTTP at http://0.0.0.0:8000/mcp
