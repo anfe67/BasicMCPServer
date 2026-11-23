@@ -199,6 +199,23 @@ Adjust the host in `main.py` if you need a different binding address.
 
 ## Configuration
 
+### Environment Variables
+
+The server uses Pydantic's `BaseSettings` to read configuration from environment variables with the `BASIC_MCP_SERVER_` prefix:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BASIC_MCP_SERVER_HOST` | `0.0.0.0` | Server bind address |
+| `BASIC_MCP_SERVER_PORT` | `8000` | Server port |
+| `BASIC_MCP_SERVER_SERVER_NAME` | `Local Web Search` | MCP server name |
+
+Set them in your shell or `.env` file before running:
+
+```bash
+export BASIC_MCP_SERVER_PORT=9000
+uv run python main.py
+```
+
 ### Local (uv)
 
 ```json
@@ -208,9 +225,11 @@ Adjust the host in `main.py` if you need a different binding address.
     "servers": {
       "basic-mcp-server": {
         "type": "local",
-        "command": ["uv", "run", "python", "main.py", "--host", "0.0.0.0", "--port", "8000"],
+        "command": ["uv", "run", "python", "main.py"],
         "env": {
-          "PYTHONPATH": "."
+          "PYTHONPATH": ".",
+          "BASIC_MCP_SERVER_HOST": "0.0.0.0",
+          "BASIC_MCP_SERVER_PORT": "8000"
         }
       }
     }
