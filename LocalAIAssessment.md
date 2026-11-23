@@ -67,7 +67,7 @@ Neither tool is a substitute for reading the full page. The search tools are jus
 
 
 
-## Let us try to undestant more about what we are doing
+## Let us try to undestand more about what we are doing
 
 #### Query
 
