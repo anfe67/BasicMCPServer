@@ -9,10 +9,10 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen
 
 # Copy source code
-COPY main.py .
+COPY main.py server_settings.py ./
 
 # The app exposes HTTP at port 8000
 EXPOSE 8000
 
 # Use the uv-created virtualenv to run the application
-CMD ["uv", "run", "python", "main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "python", "main.py"]
