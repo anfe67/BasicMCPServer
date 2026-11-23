@@ -1,10 +1,10 @@
-# Knowsearch: Minimal MCP Server
+# BasicMCPServer: Minimal MCP Server
 
 ```mermaid
 sequenceDiagram
     participant Client as LLM Inference Client (e.g. llama.cpp)
-    participant MCP as Knowsearch MCP Server (this project)
-    participant Web as Web (DuckDuckGo / Google)
+    participant MCP as BasicMCPServer MCP Server (this project)
+    participant Web as Web (DuckDuckGo / Bing)
 
     Note over Client, MCP: MCP Protocol (HTTP/JSON-RPC)
 
@@ -206,7 +206,7 @@ Adjust the host in `main.py` if you need a different binding address.
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "servers": {
-      "knowsearch": {
+      "basic-mcp-server": {
         "type": "local",
         "command": ["uv", "run", "python", "main.py", "--host", "0.0.0.0", "--port", "8000"],
         "env": {
@@ -227,7 +227,7 @@ When running via Docker Compose, use `type: remote` to connect to the mapped por
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "servers": {
-      "knowsearch": {
+       "basic-mcp-server": {
         "type": "remote",
         "url": "http://localhost:8000/mcp"
       }
@@ -235,3 +235,5 @@ When running via Docker Compose, use `type: remote` to connect to the mapped por
   }
 }
 ```
+
+**Note**: Google Search is not included by default as it requires a paid API key (Google Custom Search JSON API). To add Google Search, you would need to obtain a Google API key and integrate the Google Custom Search API.
