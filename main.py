@@ -97,7 +97,7 @@ def web_fetch_pdf(url: str) -> bytes:
         return f"Failed to fetch PDF: HTTP error {e.response.status_code}".encode()
     except httpx.TimeoutException:
         logger.error(f"web_fetch_pdf error: url='{url}', request timed out")
-        return "Failed to fetch PDF: Request timed out".encode()
+        return b"Failed to fetch PDF: Request timed out"
     except httpx.RequestError as e:
         logger.error(f"web_fetch_pdf error: url='{url}', request error - {str(e)}")
         return f"Failed to fetch PDF: Request error - {str(e)}".encode()
