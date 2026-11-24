@@ -1,12 +1,14 @@
 import sys
-from fastmcp import FastMCP
+
+import httpx
+import trafilatura
 from ddgs import DDGS
 from ddgs.exceptions import DDGSException
-import trafilatura
-import httpx
+from fastmcp import FastMCP
+from loguru import logger
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
-from loguru import logger
+
 from server_settings import ServerSettings
 
 logger.remove()
@@ -80,15 +82,15 @@ def web_fetch(url: str) -> str:
         return text or "No readable content extracted."
     except Exception as e:
         logger.error(f"web_fetch error: url='{url}', error={e}")
-        return f"Error: {str(e)}"
+        return f"Error: {e!s}"
 
 @mcp.tool()
-def web_fetch_pdf(url: str) -> bytes:
+async def web_fetch_pdf(url: str) -> bytes:
     """Fetch a PDF file from a URL and return its binary content unaltered."""
     logger.info(f"web_fetch_pdf called: url='{url}'")
     try:
-        with httpx.Client() as client:
-            response = client.get(url, follow_redirects=True, timeout=30.0)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, follow_redirects=True, timeout=30.0)
             response.raise_for_status()
             logger.info(f"web_fetch_pdf success: url='{url}', size={len(response.content)} bytes")
             return response.content
@@ -99,11 +101,11 @@ def web_fetch_pdf(url: str) -> bytes:
         logger.error(f"web_fetch_pdf error: url='{url}', request timed out")
         return b"Failed to fetch PDF: Request timed out"
     except httpx.RequestError as e:
-        logger.error(f"web_fetch_pdf error: url='{url}', request error - {str(e)}")
-        return f"Failed to fetch PDF: Request error - {str(e)}".encode()
+        logger.error(f"web_fetch_pdf error: url='{url}', request error - {e!s}")
+        return f"Failed to fetch PDF: Request error - {e!s}".encode()
     except Exception as e:
-        logger.error(f"web_fetch_pdf error: url='{url}', unexpected error - {str(e)}")
-        return f"Failed to fetch PDF: Unexpected error - {str(e)}".encode()
+        logger.error(f"web_fetch_pdf error: url='{url}', unexpected error - {e!s}")
+        return f"Failed to fetch PDF: Unexpected error - {e!s}".encode()
 
 if __name__ == "__main__":
     logger.info(f"Exposing Streamable HTTP at http://{settings.HOST}:{settings.PORT}/mcp")

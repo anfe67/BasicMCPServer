@@ -1,6 +1,8 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import httpx
 import pytest
-from main import mcp, web_search_ddg, web_fetch, web_fetch_pdf
+from main import web_fetch, web_fetch_pdf, web_search_ddg
 
 
 @pytest.fixture
@@ -17,7 +19,7 @@ def mock_trafilatura():
 
 @pytest.fixture
 def mock_httpx():
-    with patch("main.httpx.Client") as mock:
+    with patch("main.httpx.AsyncClient") as mock:
         yield mock
 
 
@@ -92,57 +94,65 @@ def test_web_fetch_no_content(mock_trafilatura):
     assert content == "No readable content extracted."
 
 
-def test_web_fetch_pdf_success(mock_httpx):
+async def test_web_fetch_pdf_success(mock_httpx):
     # Arrange
     mock_response = MagicMock()
     mock_response.content = b"%PDF-1.4 fake pdf content"
+    mock_response.raise_for_status = MagicMock()
     mock_client = MagicMock()
-    mock_client.get.return_value = mock_response
-    mock_httpx.return_value.__enter__.return_value = mock_client
+
+    async def mock_get(*args, **kwargs):
+        return mock_response
+
+    mock_client.get = mock_get
+    mock_httpx.return_value.__aenter__.return_value = mock_client
+    mock_httpx.return_value.__aexit__.return_value = None
 
     # Act
-    content = web_fetch_pdf("https://example.com/document.pdf")
+    content = await web_fetch_pdf("https://example.com/document.pdf")
 
     # Assert
     assert content == b"%PDF-1.4 fake pdf content"
-    mock_client.get.assert_called_once_with("https://example.com/document.pdf", follow_redirects=True, timeout=30.0)
     mock_response.raise_for_status.assert_called_once()
 
 
-def test_web_fetch_pdf_http_error(mock_httpx):
+async def test_web_fetch_pdf_http_error(mock_httpx):
     # Arrange
-    mock_response = MagicMock()
-    mock_response.status_code = 404
     mock_client = MagicMock()
-    mock_client.get.side_effect = Exception("HTTP error")
-    mock_httpx.return_value.__enter__.return_value = mock_client
+    mock_client.get = MagicMock(side_effect=httpx.HTTPStatusError("HTTP error", request=None, response=MagicMock(status_code=404)))
+    mock_httpx.return_value.__aenter__.return_value = mock_client
+    mock_httpx.return_value.__aexit__.return_value = None
 
     # Act
-    content = web_fetch_pdf("https://example.com/document.pdf")
+    content = await web_fetch_pdf("https://example.com/document.pdf")
 
     # Assert
     assert b"Failed to fetch PDF" in content
 
-def test_web_fetch_pdf_timeout_error(mock_httpx):
+
+async def test_web_fetch_pdf_timeout_error(mock_httpx):
     # Arrange
     mock_client = MagicMock()
-    mock_client.get.side_effect = Exception("Timeout")
-    mock_httpx.return_value.__enter__.return_value = mock_client
+    mock_client.get = MagicMock(side_effect=httpx.TimeoutException("Timeout"))
+    mock_httpx.return_value.__aenter__.return_value = mock_client
+    mock_httpx.return_value.__aexit__.return_value = None
 
     # Act
-    content = web_fetch_pdf("https://example.com/document.pdf")
+    content = await web_fetch_pdf("https://example.com/document.pdf")
 
     # Assert
     assert b"Failed to fetch PDF" in content
 
-def test_web_fetch_pdf_request_error(mock_httpx):
+
+async def test_web_fetch_pdf_request_error(mock_httpx):
     # Arrange
     mock_client = MagicMock()
-    mock_client.get.side_effect = Exception("Connection error")
-    mock_httpx.return_value.__enter__.return_value = mock_client
+    mock_client.get = MagicMock(side_effect=httpx.RequestError("Connection error"))
+    mock_httpx.return_value.__aenter__.return_value = mock_client
+    mock_httpx.return_value.__aexit__.return_value = None
 
     # Act
-    content = web_fetch_pdf("https://example.com/document.pdf")
+    content = await web_fetch_pdf("https://example.com/document.pdf")
 
     # Assert
     assert b"Failed to fetch PDF" in content

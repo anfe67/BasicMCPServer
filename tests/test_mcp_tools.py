@@ -1,6 +1,7 @@
-import asyncio
 import pytest
+
 from main import mcp
+
 
 @pytest.mark.asyncio
 async def test_mcp_tools_registered():
